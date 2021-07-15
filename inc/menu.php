@@ -30,8 +30,19 @@ if ( is_admin() ) {
   function register_boxdev_menu_admin() {
   ?>
     <div class="wrap woocommerce">
-        <?php boxdev_pull_data();?>     
-         
+
+        <?php boxdev_pull_data();?> 
+
+        <?php echo "<br>"; ?>   
+        <?php echo "<br>"; ?> 
+        <?php echo "<br>"; ?> 
+        <?php echo "<br>"; ?>  
+
+        <?php boxdev_pull_data_akt();?>  
+        <hr>
+        <h2>Раздел порвекри отправляемых данных на  Boxberry(тест)</h2>
+
+        <?php boxdev_push_data(); ?>
     </div>
   <?php
   }
