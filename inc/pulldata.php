@@ -33,7 +33,10 @@ function boxdev_pull_data() {
 
 
 <table>
-<caption>Информацию по заказам, которые фактически переданы на доставку в Boxberry</caption>
+<caption>
+    <h3>Информация по заказам, которые фактически переданы на доставку в Boxberry</h3>
+    
+</caption>
   <tr>
     <th>Номер заказа,<br> присвоенный интернет-магазином</th>
     <th>Статус заказа</th>
@@ -83,12 +86,37 @@ function boxdev_pull_data() {
 /** Модуль получения актов */
 
 function boxdev_pull_data_akt() {
-   
+?>
+<p>Выберите период для выборки актов</p>
+    <form action="" method="post">
+        <div class="form-field">
+            <label for="date_from"><?php esc_html_e( 'От', 'boxdev' ); ?></label>
+            <input name="date_from" id="date_from" type="date" value="" />                                
+        </div>
+        <div class="form-field">
+            <label for="date_to"><?php esc_html_e( 'До', 'boxdev' ); ?></label>
+            <input name="date_to" id="date_to" type="date" value="" />                                
+        </div>
+        <button><?php esc_html_e( 'Выбрать', 'boxdev' ); ?></button>
+
+    </form>
+<?php   
+
+    if (isset($_POST['date_from'])){        
+        $date_from = new DateTime(sanitize_text_field($_POST['date_from']));
+        $date_from_new =  $date_from->format('Ymd');
+    }  
+
+    if (isset($_POST['date_to'])){        
+        $date_to = new DateTime(sanitize_text_field($_POST['date_to']));
+        $date_to_new = $date_to->format('Ymd');
+    }    
+
     require_once ABSPATH . 'wp-admin/includes/image.php';
     require_once ABSPATH . 'wp-admin/includes/file.php';
     require_once ABSPATH . 'wp-admin/includes/media.php';
    
-    $url='http://api.boxberry.ru/json.php?token='.BOXBERRY_TOKEN.'&method=ParselSendStory&from=20210701&to=20210715';
+    $url='http://api.boxberry.ru/json.php?token='.BOXBERRY_TOKEN.'&method=ParselSendStory&from='. $date_from_new .'&to='. $date_to_new;
     $handle = fopen($url, "rb");
     $contents = stream_get_contents($handle);
     fclose($handle);
@@ -109,7 +137,11 @@ function boxdev_pull_data_akt() {
         */
 ?>
         <table>
-<caption>Информацию по заказам, Акты по доставкам в Boxberry (для теста с 01.07.2021 по 15.07.2021)</caption>
+<caption>
+    <h3>Информация по заказам, Акты по доставкам в Boxberry </h3>   
+    
+</caption>
+
   <tr>
     <th>Норма актов</th>
     <th>Дата</th>
@@ -125,7 +157,14 @@ function boxdev_pull_data_akt() {
         <?php foreach ($data as $data_akt_show)  { ?>
             <tr>
                 <td>
-                <?php echo esc_html($data_akt_show['track']);?>  
+                <?php 
+                $str_track = esc_html($data_akt_show['track']);
+                $arr_track = explode(",", $str_track);
+                foreach($arr_track as $val){
+                    echo $val;
+                    echo "<br>";
+                }
+                ?>  
                 </td>
                 <td>
                     <?php echo esc_html($data_akt_show['date']);?>    
