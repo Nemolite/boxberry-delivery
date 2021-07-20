@@ -33,6 +33,17 @@ function script_and_style_boxdev_admin(){
   }
   add_action( 'admin_enqueue_scripts', 'script_and_style_boxdev_admin' );
 
+ /**
+  * Helpers
+  */ 
+
+ function show($array) {
+   echo "<pre>";
+   print_r($array);
+   echo "</pre>";
+
+ }
+
 /**
  * Модуль создания меню
  */
@@ -48,7 +59,5 @@ require "inc/pulldata.php";
  * Модуль отправления данных
  */
 require "inc/pushdata.php";
-
-
 
 ?>

@@ -4,58 +4,94 @@
  * 
  */
 
- function boxdev_push_data_test() {
-     /**
+add_action('woocommerce_admin_order_totals_after_total','boxdev_admin_order_totals_after_tax', 1);
+function boxdev_admin_order_totals_after_tax( $order_id ){
+     echo "= " . $order_id;
+     $order = wc_get_order( $order_id );
+     echo "<pre>";
+     print_r($order);
+     echo "</pre>";
+
+     echo "<br>";
+     echo "<br>";
+     echo "<br>";
+
+     echo "<pre>";
+     print_r( $order->get_meta_data() );
+     echo "</pre>";
+
+     
+     
+
+       /**
      * Подготовка данных к отправке
      */
     $SDATA=array();
-    $SDATA['updateByTrack']='Трекинг-код ранее созданной посылки';
-    $SDATA['order_id']='ID заказа в ИМ';
-    $SDATA['PalletNumber']='Номер палеты';
-    $SDATA['barcode']='Штрих-код заказа';
-    $SDATA['price']='Объявленная стоимость';
-    $SDATA['payment_sum']='Сумма к оплате';
-    $SDATA['delivery_sum']='Стоимость доставки';
-    $SDATA['vid']='Тип доставки (1/2)';
+
+    $SDATA['order_id'] = $order_id;    
+    // $SDATA['PalletNumber']='Номер палеты';
+    // $SDATA['barcode']='Штрих-код заказа';
+    //$SDATA['price']='Объявленная стоимость';
+    $SDATA['payment_sum']=$order->get_total(); 
+    $SDATA['delivery_sum']=$order->get_shipping_total();
+    $SDATA['vid']='1';
+
+    $address = '603140, Нижний Новгород г, Ленина пр-кт, д.31';
+
+    
+
+    if( boxdev_get_code_on_address($address) ) {
+        $code_name = boxdev_get_code_on_address($address);  
+    }
     $SDATA['shop']=array(
-        'name'=>'Код ПВЗ',
-        'name1'=>'Код пункта поступления'
+        'name'=>$code_name
+        
     );
     $SDATA['customer']=array(
-        'fio'=>'ФИО получателя',
-        'phone'=>'Номер телефона',
+        'fio'=>$order->get_user(),
+        'phone'=>$order->get_billing_phone(),
         'phone2'=>'Доп. номер телефона',
-        'email'=>'E-mail для оповещений',
+        'email'=>$order->get_billing_email(),
         'name'=>'Наименование организации',
-        'address'=>'Адрес',
+        'address'=>$order->get_billing_address_1(),
         'inn'=>'ИНН',
         'kpp'=>'КПП',
         'r_s'=>'Расчетный счет',
         'bank'=>'Наименование банка',
         'kor_s'=>'Кор. счет',
-        'bik'=>'БИК'
+        'bik'=>'БИК',
+
+        'test_billing_address' => $order->get_formatted_billing_address(),
+        'test_shipping_address' => $order->get_formatted_shipping_address(),
+
     );
-    $SDATA['kurdost'] = array(
-        'index' => 'Индекс',
-        'citi' => 'Город',
-        'addressp' => 'Адрес получателя',
-        'timesfrom1' => 'Время доставки, от',
-        'timesto1' => 'Время доставки, до',
-        'timesfrom2' => 'Альтернативное время, от',
-        'timesto2' => 'Альтернативное время, до',
-        'timep' => 'Время доставки текстовый формат',
-        'delivery_date' => "Дата доставки от +1 день до +5 дней от текущий даты (только для доставки по Москве, МО и Санкт-Петербургу)",
-        'comentk' => 'Комментарий'
-    );
+    foreach ( $order->get_items() as $item_id => $item ) {
+        $product_id = $item->get_product_id();
+        $variation_id = $item->get_variation_id();
+        $product = $item->get_product();
+        $product_name = $item->get_name();
+        $quantity = $item->get_quantity();
+        $subtotal = $item->get_subtotal();
+        $total = $item->get_total();
+        $tax = $item->get_subtotal_tax();
+        $taxclass = $item->get_tax_class();
+        $taxstat = $item->get_tax_status();
+        $allmeta = $item->get_meta_data();
+        $somemeta = $item->get_meta( '_whatever', true );
+        $product_type = $item->get_type();
+     }
+
+     echo "<pre>";
+     print_r($item);
+     echo "</pre>";
     
     $SDATA['items']=array(
         array(
-            'id'=>'ID товара в БД ИМ',
-            'name'=>'Наименование товара',
-            'UnitName'=>'Единица измерения',
-            'nds'=>'Процент НДС',
-            'price'=>'Цена товара',
-            'quantity'=>'Количество'
+            'id'=>$product_id,
+            'name'=>$product_name,           
+            'nds'=>0,
+            'price'=>$total,
+            'quantity'=>$quantity
         )
     );
     $SDATA['weights']=array(
@@ -75,39 +111,15 @@
      * Отправка данных
      */
 
-     // Предполагается что Вы уже создали массив $SDATA по описанному выше примеру.
-// Отправляем массив на сервер boxberry используя CURL.
-$ch = curl_init();
-curl_setopt($ch, CURLOPT_URL, 'http://api.boxberry.ru/json.php');
-curl_setopt($ch, CURLOPT_POST, true);
-curl_setopt($ch, CURLOPT_POSTFIELDS, array(
-    'token'=>'XXXXXXXXXX',
-    'method'=>'ParselCreate',
-    'sdata'=>json_encode($SDATA)
-));
-curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-$data = json_decode(curl_exec($ch),1);
-if($data['err'] or count($data)<=0)
-{
-    // если произошла ошибка и ответ не был получен.
-    echo $data['err'];
-}
-else
-{
-    // все отлично, ответ получен, теперь в массиве $data.
-    // (если был указан штрих-код то переменная label будет отсутствовать).
-    /*
-    $data=array(
-        'track'=>'XXXXXXXX', // Трекинг код для посылки.
-        'label'=>'http://' // Ссылка на скачивание PDF файла с этикетками.
-    );
-    */
-}
-   
- }
+        // Предполагается что Вы уже создали массив $SDATA по описанному выше примеру.
+    // Отправляем массив на сервер boxberry используя CURL.
+    echo "Данные которые уйдут на boxberry";
 
-function boxdev_push_data() {
-    echo "token";
-}
+   echo "<pre>";
+   print_r($SDATA);
+   echo "</pre>";
+    
+     
 
+}
  ?>
