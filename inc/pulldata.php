@@ -143,4 +143,63 @@ function boxdev_pull_info_test(){
         }
     }
 }
+
+
+function boxdev_get_code_on_address( $address ){
+    
+    $url='http://api.boxberry.ru/json.php?token='.BOXBERRY_TOKEN.'&method=ListPoints';
+    $handle = fopen($url, "rb");
+    $contents = stream_get_contents($handle);
+    fclose($handle);
+    $data=json_decode($contents,true);
+    if(count($data)<=0 )
+        {
+        // если произошла ошибка и ответ не был получен:
+        
+        }
+    else
+    {
+      // все отлично, ответ получен, теперь в массиве $data,
+      // список всех ПВЗ в следующем формате:
+      /*
+      $data[0...n]=array(
+           'Code'=>'Код в базе boxberry',
+           'Name'=>'Наименование ПВЗ',
+           'Address'=>'Полный адрес',
+           'Phone'=>'Телефон или телефоны',
+           'WorkShedule'=>'График работы',
+           'TripDescription'=>'Описание проезда',
+           'DeliveryPeriod'=>'Срок доставки' (срок доставки из Москвы, дней),
+           'CityCode'=>'Код города в boxberry',
+           'CityName'=>'Наименование города',
+           'TariffZone'=>'Тарифная зона' (город отправления - Москва),
+           'Settlement'=>'Населенный пункт',
+           'Area'=>'Регион',
+           'Country'=>'Страна',
+           'GPS'=>'Координаты gps',
+           'OnlyPrepaidOrders'=>'Если значение "Yes" - точка работает только с полностью оплаченными заказами',
+           'Acquiring'=>'Если значение "Yes" - Есть возможность оплаты  платежными (банковскими) картами',
+           'DigitalSignature'=>'Если значение "Yes" - Подпись получателя будет хранится в системе boxberry в электронном виде',
+           'AddressReduce' => 'Короткий адрес',
+           'TypeOfOffice' => 'Тип пункта выдачи: 1-ПВЗ, 2-СПВЗ',
+           'NalKD' => 'Осуществляет курьерскую доставку',
+           'CountryCode' => 'Код страны в Boxberry',
+           'Metro' => 'Станция метро',
+           'VolumeLimit' => 'Ограничение объема',
+           'LoadLimit' => 'Ограничение веса, кг',
+      );
+
+      например:
+      echo $data[0]['Name'];
+      echo $data[5]['Code'];
+      */
+        foreach ($data as $val){
+            if ($address==$val['Address']){
+               
+                return $val['Code'];
+
+            }       
+        }
+    }
+}
 ?>

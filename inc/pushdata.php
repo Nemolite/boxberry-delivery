@@ -8,20 +8,34 @@ add_action('woocommerce_admin_order_totals_after_total','boxdev_admin_order_tota
 function boxdev_admin_order_totals_after_tax( $order_id ){
      echo "= " . $order_id;
      $order = wc_get_order( $order_id );
-     echo "<pre>";
-     print_r($order);
-     echo "</pre>";
 
-     echo "<br>";
-     echo "<br>";
-     echo "<br>";
-
-     echo "<pre>";
-     print_r( $order->get_meta_data() );
-     echo "</pre>";
-
+     ?>
+     <h1>Тестовый вывод объекта $_COOKIE</h1>
+     <?php
      
+     show( $_COOKIE);
+
+     ?>
+     <h1>Тестовый вывод объекта $_SESSION</h1>
+     <?php
      
+     show( $_SESSION);
+
+
+
+
+
+     ?>
+     <h1>Тестовый вывод объекта $order</h1>
+     <?php
+     
+     show($order);
+
+     ?>
+     <h1>Тестовый вывод объекта $order->get_meta_data()</h1>
+     <?php
+
+    show( $order->get_meta_data() );
 
        /**
      * Подготовка данных к отправке
@@ -35,20 +49,14 @@ function boxdev_admin_order_totals_after_tax( $order_id ){
     $SDATA['payment_sum']=$order->get_total(); 
     $SDATA['delivery_sum']=$order->get_shipping_total();
     $SDATA['vid']='1';
-
-    $address = '603140, Нижний Новгород г, Ленина пр-кт, д.31';
-
     
-
-    if( boxdev_get_code_on_address($address) ) {
-        $code_name = boxdev_get_code_on_address($address);  
-    }
+   
     $SDATA['shop']=array(
-        'name'=>$code_name
+       // 'name'=>$code_name
         
     );
     $SDATA['customer']=array(
-        'fio'=>$order->get_user(),
+        'fio'=>$order->get_formatted_billing_address(),
         'phone'=>$order->get_billing_phone(),
         'phone2'=>'Доп. номер телефона',
         'email'=>$order->get_billing_email(),
@@ -61,8 +69,12 @@ function boxdev_admin_order_totals_after_tax( $order_id ){
         'kor_s'=>'Кор. счет',
         'bik'=>'БИК',
 
+        // тестовые поля
+
         'test_billing_address' => $order->get_formatted_billing_address(),
         'test_shipping_address' => $order->get_formatted_shipping_address(),
+       
+        
 
     );
     foreach ( $order->get_items() as $item_id => $item ) {
@@ -79,11 +91,14 @@ function boxdev_admin_order_totals_after_tax( $order_id ){
         $allmeta = $item->get_meta_data();
         $somemeta = $item->get_meta( '_whatever', true );
         $product_type = $item->get_type();
+      
      }
 
-     echo "<pre>";
-     print_r($item);
-     echo "</pre>";
+     ?>
+     <h1>Тестовый вывод объекта $item</h1>
+     <?php   
+     
+     show($item);    
     
     $SDATA['items']=array(
         array(
@@ -113,13 +128,11 @@ function boxdev_admin_order_totals_after_tax( $order_id ){
 
         // Предполагается что Вы уже создали массив $SDATA по описанному выше примеру.
     // Отправляем массив на сервер boxberry используя CURL.
-    echo "Данные которые уйдут на boxberry";
-
-   echo "<pre>";
-   print_r($SDATA);
-   echo "</pre>";
-    
-     
-
+    ?>
+    <h1>Данные для boxberry</h1>
+    <?php
+ 
+  show($SDATA); 
+  
 }
  ?>
