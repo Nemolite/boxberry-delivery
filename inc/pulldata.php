@@ -15,22 +15,8 @@ function boxdev_pull_data() {
     if (count($data) <= 0 ) {
         
         echo "Данные по отправлениям отсутствуют";
-    }else{
-             
-       
-        /*
-        Array(
-        [0...n] => Array(
-            [ID] => Номер заказа, присвоенный интернет-магазином,
-            [Status] => Статус заказа,
-            [Price] => Стоимость товаров,
-            [Delivery_sum] => Стоимость доставки,
-            [Payment_sum] => Сумма к оплате.
-        ),
-        )
-        */
+    }else{ 
         ?>
-
 
 <table>
 <caption>
@@ -83,67 +69,9 @@ function boxdev_pull_data() {
     }
 }
 
-function boxdev_pull_info_test(){
-    
-    $url='http://api.boxberry.ru/json.php?token='.BOXBERRY_TOKEN.'&method=ListPoints';
-    $handle = fopen($url, "rb");
-    $contents = stream_get_contents($handle);
-    fclose($handle);
-    $data=json_decode($contents,true);
-    if(count($data)<=0 )
-        {
-        // если произошла ошибка и ответ не был получен:
-        
-        }
-    else
-    {
-      // все отлично, ответ получен, теперь в массиве $data,
-      // список всех ПВЗ в следующем формате:
-      /*
-      $data[0...n]=array(
-           'Code'=>'Код в базе boxberry',
-           'Name'=>'Наименование ПВЗ',
-           'Address'=>'Полный адрес',
-           'Phone'=>'Телефон или телефоны',
-           'WorkShedule'=>'График работы',
-           'TripDescription'=>'Описание проезда',
-           'DeliveryPeriod'=>'Срок доставки' (срок доставки из Москвы, дней),
-           'CityCode'=>'Код города в boxberry',
-           'CityName'=>'Наименование города',
-           'TariffZone'=>'Тарифная зона' (город отправления - Москва),
-           'Settlement'=>'Населенный пункт',
-           'Area'=>'Регион',
-           'Country'=>'Страна',
-           'GPS'=>'Координаты gps',
-           'OnlyPrepaidOrders'=>'Если значение "Yes" - точка работает только с полностью оплаченными заказами',
-           'Acquiring'=>'Если значение "Yes" - Есть возможность оплаты  платежными (банковскими) картами',
-           'DigitalSignature'=>'Если значение "Yes" - Подпись получателя будет хранится в системе boxberry в электронном виде',
-           'AddressReduce' => 'Короткий адрес',
-           'TypeOfOffice' => 'Тип пункта выдачи: 1-ПВЗ, 2-СПВЗ',
-           'NalKD' => 'Осуществляет курьерскую доставку',
-           'CountryCode' => 'Код страны в Boxberry',
-           'Metro' => 'Станция метро',
-           'VolumeLimit' => 'Ограничение объема',
-           'LoadLimit' => 'Ограничение веса, кг',
-      );
-
-      например:
-      echo $data[0]['Name'];
-      echo $data[5]['Code'];
-      */
-        foreach ($data as $val){
-            if ('603140, Нижний Новгород г, Ленина пр-кт, д.31'==$val['Address']){
-                echo $val['Address'];
-                echo " ";
-                echo $val['Code'];
-                echo " ";
-                echo $val['Name'];
-                echo "<br>";
-            }       
-        }
-    }
-}
-
+/**
+ *  Тестовый вывод данных,для проверки правильности
+ */
 
 function boxdev_get_code_on_address( $address ){
     
@@ -154,45 +82,13 @@ function boxdev_get_code_on_address( $address ){
     $data=json_decode($contents,true);
     if(count($data)<=0 )
         {
-        // если произошла ошибка и ответ не был получен:
+           $cod_zero = 0; 
+           return $cod_zero;
         
         }
     else
     {
-      // все отлично, ответ получен, теперь в массиве $data,
-      // список всех ПВЗ в следующем формате:
-      /*
-      $data[0...n]=array(
-           'Code'=>'Код в базе boxberry',
-           'Name'=>'Наименование ПВЗ',
-           'Address'=>'Полный адрес',
-           'Phone'=>'Телефон или телефоны',
-           'WorkShedule'=>'График работы',
-           'TripDescription'=>'Описание проезда',
-           'DeliveryPeriod'=>'Срок доставки' (срок доставки из Москвы, дней),
-           'CityCode'=>'Код города в boxberry',
-           'CityName'=>'Наименование города',
-           'TariffZone'=>'Тарифная зона' (город отправления - Москва),
-           'Settlement'=>'Населенный пункт',
-           'Area'=>'Регион',
-           'Country'=>'Страна',
-           'GPS'=>'Координаты gps',
-           'OnlyPrepaidOrders'=>'Если значение "Yes" - точка работает только с полностью оплаченными заказами',
-           'Acquiring'=>'Если значение "Yes" - Есть возможность оплаты  платежными (банковскими) картами',
-           'DigitalSignature'=>'Если значение "Yes" - Подпись получателя будет хранится в системе boxberry в электронном виде',
-           'AddressReduce' => 'Короткий адрес',
-           'TypeOfOffice' => 'Тип пункта выдачи: 1-ПВЗ, 2-СПВЗ',
-           'NalKD' => 'Осуществляет курьерскую доставку',
-           'CountryCode' => 'Код страны в Boxberry',
-           'Metro' => 'Станция метро',
-           'VolumeLimit' => 'Ограничение объема',
-           'LoadLimit' => 'Ограничение веса, кг',
-      );
-
-      например:
-      echo $data[0]['Name'];
-      echo $data[5]['Code'];
-      */
+             
         foreach ($data as $val){
             if ($address==$val['Address']){
                
@@ -201,5 +97,20 @@ function boxdev_get_code_on_address( $address ){
             }       
         }
     }
+}
+
+function boxdev_get_meta_box_from_order( $order_id ){    
+
+    global $wpdb;
+    $table_name = $wpdb->prefix . 'woocommerce_order_itemmeta';
+    $results = $wpdb->get_results( 'SELECT * FROM '.$table_name. ' WHERE order_item_id='.$order_id, ARRAY_A );
+    return $results;
+}
+
+
+
+function boxdev_get_key(){
+    $boxdev = new WC_Boxdev_Shipping_Method();
+    return $boxdev->getKey();
 }
 ?>

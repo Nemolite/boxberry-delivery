@@ -29,13 +29,8 @@ if ( is_admin() ) {
   
   function register_boxdev_menu_admin() {
   ?>
-    <div class="wrap woocommerce">    
-        <h2>Тестовый вывод</h2>
-        <?php 
-
-          boxdev_pull_info_test();
-
-        ?>
+    <div class="wrap woocommerce">                  
+        <?php boxdev_pull_data();?>
     </div>
   <?php
   }

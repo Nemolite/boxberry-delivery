@@ -34,7 +34,7 @@ function script_and_style_boxdev_admin(){
   add_action( 'admin_enqueue_scripts', 'script_and_style_boxdev_admin' );
 
  /**
-  * Helpers
+  * Helper
   */ 
 
  function show($array) {
@@ -49,6 +49,11 @@ function script_and_style_boxdev_admin(){
  */
 require "inc/menu.php";  
 
+/**
+ *  Модуль для работы с checkout
+ */
+require "inc/orders.php";  
+
 
 /**
  * Модуль получения данных
@@ -59,5 +64,24 @@ require "inc/pulldata.php";
  * Модуль отправления данных
  */
 require "inc/pushdata.php";
+
+/**
+ * Класс (наследник класса WC_Shipping_Local_Point( WC_Shipping_Method  ) ) 
+ * 
+ */
+require "inc/class-boxdev.php";
+
+add_filter( 'woocommerce_shipping_methods', 'boxdev_add_shipping_class' );
+
+/**
+ * Для того чтобы класс был виден в системе
+ *
+ * @param array $methods
+ * @return array $methods
+ */
+function boxdev_add_shipping_class( $methods ) {
+	$methods[ 'truemisha_shipping_method' ] = 'WC_Boxdev_Shipping_Method'; 
+	return $methods;
+}
 
 ?>
