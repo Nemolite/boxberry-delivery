@@ -107,10 +107,13 @@ function boxdev_get_meta_box_from_order( $order_id ){
     return $results;
 }
 
-
-
 function boxdev_get_key(){
     $boxdev = new WC_Boxdev_Shipping_Method();
     return $boxdev->getKey();
+}
+
+function boxdev_get_url(){
+    $boxdev = new WC_Boxdev_Shipping_Method();
+    return $boxdev->getApiUrl();
 }
 ?>
