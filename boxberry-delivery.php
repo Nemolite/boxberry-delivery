@@ -71,8 +71,6 @@ require "inc/pushdata.php";
  */
 require "inc/class-boxdev.php";
 
-add_filter( 'woocommerce_shipping_methods', 'boxdev_add_shipping_class' );
-
 /**
  * Для того чтобы класс был виден в системе
  *
@@ -83,5 +81,6 @@ function boxdev_add_shipping_class( $methods ) {
 	$methods[ 'truemisha_shipping_method' ] = 'WC_Boxdev_Shipping_Method'; 
 	return $methods;
 }
+add_filter( 'woocommerce_shipping_methods', 'boxdev_add_shipping_class' );
 
 ?>

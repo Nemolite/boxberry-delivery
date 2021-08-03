@@ -4,8 +4,9 @@
  * 
  */
 
-function boxdev_pull_data() {  
-    $url = 'http://api.boxberry.ru/json.php?token='.BOXBERRY_TOKEN.'&method=OrdersBalance';
+function boxdev_pull_data() { 
+    $token = boxdev_get_key(); 
+    $url = 'http://api.boxberry.ru/json.php?token='.$token.'&method=OrdersBalance';
     
     $handle = fopen($url, "rb");
     $contents = stream_get_contents($handle);
@@ -70,7 +71,7 @@ function boxdev_pull_data() {
 }
 
 /**
- *  Тестовый вывод данных,для проверки правильности
+ *  Получение кода ПВЗ по адресу
  */
 
 function boxdev_get_code_on_address( $address ){

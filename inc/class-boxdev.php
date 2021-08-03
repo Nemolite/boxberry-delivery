@@ -28,6 +28,12 @@ if ( ! class_exists( 'WC_Boxdev_Shipping_Method' ) ) {
         private $boxdev_key;
         private $boxdev_api_url;
 
+        public $boxdev_from;
+        public $boxdev_default_weight;
+        public $boxdev_default_height;
+        public $boxdev_default_width;
+        public $boxdev_default_length;
+
         /**
 		 * Конструктор класса
 		 */
@@ -55,9 +61,15 @@ if ( ! class_exists( 'WC_Boxdev_Shipping_Method' ) ) {
 
             $this->init_form_fields();
 			$this->init_settings();
-		    // Boxberry
-            $this->boxdev_key   = $this->get_option( 'boxdev_key' );           
-            $this->boxdev_api_url 		  = $this->get_option( 'boxdev_api_url' );            
+		    
+
+            $this->boxdev_key                 = $this->get_option( 'boxdev_key' );           
+            $this->boxdev_api_url 		      = $this->get_option( 'boxdev_api_url' );            
+            $this->boxdev_from 		          = $this->get_option( 'boxdev_from' ); 
+            $this->boxdev_default_weight 		  = $this->get_option( 'boxdev_default_weight' ); 
+            $this->boxdev_default_height 		  = $this->get_option( 'boxdev_default_height' );
+            $this->boxdev_default_width 	      = $this->get_option( 'boxdev_default_width' );
+            $this->boxdev_default_length 		  = $this->get_option( 'boxdev_default_length' );
 		/**
 	 	 * Сохраняем настройки
 		 */
@@ -84,7 +96,38 @@ if ( ! class_exists( 'WC_Boxdev_Shipping_Method' ) ) {
                 'description' 	=> '',
                 'type' 			=> 'text',
                 'default'		=> 'https://api.boxberry.ru/json.php',
-                )
+                ),
+                'boxdev_from' => array(
+                    'title' 		=> __( 'Пункт приема заказа', 'boxdev' ),
+                    'description' 	=> '10.042 -  Москва Ленинградское
+                    125212, Москва г, Ленинградское ш, д.58, строение 26, пав. 99',
+                    'type' 			=> 'text',
+                    'default'		=> '10.042',
+                ),
+                'boxdev_default_weight' => array(
+                    'title' 		=> __( 'Default Weight - Начальный вес (кг)', 'boxdev' ),
+                    'description' 	=> 'Для расчета доставки, по умолчанию - 0,1 кг',
+                    'type' 			=> 'text',
+                    'default'		=> '0,1',
+                ),
+                'boxdev_default_height' => array(
+                    'title' 		=> __( 'Default Height - Начальная высота (см) ', 'boxdev' ),
+                    'description' 	=> 'Для расчета доставки, по умолчанию - 1 см',
+                    'type' 			=> 'text',
+                    'default'		=> '1',
+                ),
+                'boxdev_default_width' => array(
+                    'title' 		=> __( 'Default Width - Начальная ширина (см) ', 'boxdev' ),
+                    'description' 	=> 'Для расчета доставки, по умолчанию - 1 см',
+                    'type' 			=> 'text',
+                    'default'		=> '1',
+                ),
+                'boxdev_default_length' => array(
+                    'title' 		=> __( 'Default Length - Начальная длина (см) ', 'boxdev' ),
+                    'description' 	=> 'Для расчета доставки, по умолчанию - 1 см',
+                    'type' 			=> 'text',
+                    'default'		=> '1',
+                ),
             );    
         }
 
@@ -96,7 +139,7 @@ if ( ! class_exists( 'WC_Boxdev_Shipping_Method' ) ) {
         public function admin_options() {
             global $woocommerce; ?>
             <h3><?php echo $this->method_title; ?></h3>
-            <p><?php _e( 'Раздел для заполнения данных', 'woocommerce' ); ?></p>
+            <p><?php _e( 'Настройки', 'woocommerce' ); ?></p>
                 <table class="form-table">
                     <?php 
                     /**
@@ -104,50 +147,15 @@ if ( ! class_exists( 'WC_Boxdev_Shipping_Method' ) ) {
                      */
                     $this->generate_settings_html(); 
                     ?>
-                </table> <?php
-                show($_COOKIE);
-               
-             
+                </table> <?php          
+        
             }
 
-        public function calculate_shipping( $package = array() ) {	
-               
-            }    
-
-        public function boxdev_autocreate(){
-
-            /**
-             * Получаем $city_id
-             */
-            $check = $this->init_checked();
-            if ( $check !== false && !in_array( $pointName,$check ) ){
-                $point_name = $check[0];
-            }    
-
-
-
-            $package = $this->package;
-            $postcode = $package['destination']['postcode'];
-            $country = $package['destination']['country'];
-            $city_id = getShippint_cityID($postcode, $point_name, $country);
-
-            /**
-             * Получение кода ПВЗ
-             */
-            
-            $client = new Boxberry\Client\Client();
-			$client->setApiUrl($this->boxdev_api_url);
-			$client->setKey($this->boxdev_key);
-					
-			$target_point_code = $this->boxberryGetPointCode($client, $city_id);
-         
-
-            return $target_point_code;
-            
-        }    
-
-           
         
+        public function calculate_shipping( $package = array() ) {	
+               // Не используется, но нужен
+
+            }                  
 		
 	}
 } 
