@@ -36,12 +36,10 @@ function script_and_style_boxdev_admin(){
  /**
   * Helper
   */ 
-
  function show($array) {
    echo "<pre>";
    print_r($array);
    echo "</pre>";
-
  }
 
 /**
