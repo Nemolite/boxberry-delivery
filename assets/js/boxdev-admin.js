@@ -18,7 +18,7 @@
               $(`#boxdev-messege`).text('Отправление на BoxBerry создано. Обновите для сохраниения номера акта и получения ссылки ');
               $(`#shipping_post_rusia_id`).val(request);
               $(`#boxdev-send`).attr("disabled", "true");  
-             } esle {
+             } else {
               $(`#boxdev-messege`).text('Отправление на BoxBerry  не создано. Что-то пошло не так '); 
              }
                 

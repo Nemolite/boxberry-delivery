@@ -9,7 +9,7 @@ function boxdev_admin_order_totals_after_tax( $order_id ){
     
     $order = wc_get_order( $order_id ); 
 
-   // show( $order );
+   //show( $order );
     
     /**
      * Вывод кнопки отправления
@@ -101,9 +101,19 @@ function boxdev_prepare_sdata( $order, $order_id ){
 
   // $SDATA['order_id'] = $order_id;     // Номер заказа в интернет-магазине  
 
+  // При оплате заказа на сайте сумму к оплате с получаетля не выставлять
+
+  
+  $order_total = "0";
+  if (($order->get_status() == 'processing')&&($order->get_payment_method() == "nal") ) {
+    $order_total = $order->get_total();
+  } 
+
+  
+
    $SDATA['order_id'] = $order_id;     // Номер заказа в интернет-магазине  
-   $SDATA['payment_sum']=$order->get_total(); // Сумма к оплате с получателя
-   $SDATA['price']=$order->get_total();       // Объявленная стоимость
+   $SDATA['payment_sum']=$order_total; // Сумма к оплате с получателя
+   $SDATA['price']= 0;      // $order->get_total(); Объявленная стоимость- всегда ноль
    $SDATA['delivery_sum']=$order->get_shipping_total(); // Стоимость доставки объявленная получателю
    $SDATA['vid']='1'; // 1- Доставка до пункта выдачи (ПВЗ)
    
@@ -116,7 +126,7 @@ function boxdev_prepare_sdata( $order, $order_id ){
        
    );
 
-   $fio = $order->get_formatted_shipping_full_name()." ".get_post_meta( $order_id, '_billing_new_fild11', true );
+   $fio = $order->get_billing_last_name()." ".$order->get_billing_first_name()." ".get_post_meta( $order_id, '_billing_new_fild11', true );
    $SDATA['customer']=array(
        'fio'=>$fio, // ФИО получателя
        'phone'=>$order->get_billing_phone(),           // Номер телефона получателя,            
@@ -145,10 +155,24 @@ function boxdev_prepare_sdata( $order, $order_id ){
 
     // Функция получения веса
 
-    $weight = boxdev_calculation_weights( $order );  
-  
+    $weight = boxdev_calculation_weights( $order );    
+
+    if (300<$weight) {
+        $weight_new = $weight; 
+     }  else {
+        $weight_new = 300; 
+     }   
+
+    $height = boxdev_calculation_heights( $order );
+    $width  = boxdev_calculation_widths( $order );
+    $length = boxdev_calculation_lengths( $order );
+
+
    $SDATA['weights']=array(
-       'weight'=>$weight,
+       'weight'=>$weight_new,
+       'y' => $height,
+       'x' => $width,
+       'z' => $length,
            
    ); 
 
@@ -162,7 +186,7 @@ function boxdev_calculation_weights( $order ){
 
     $boxdev_local_point = new WC_Boxdev_Shipping_Method();   
     // Первоначальный вес
-    $defaultWeight = floatval($boxdev_local_point->get_option('boxdev_default_weight'));
+    $defaultWeight = floatval( $boxdev_local_point->boxdev_default_weight );
     
     // Инициализация
     $total_weight = 0;
@@ -180,9 +204,121 @@ function boxdev_calculation_weights( $order ){
         
      } 
      // Переводим в граммы
-    $weight = (floatval($total_weight) + $defaultWeight) * 1000;
+    //$weight = floatval($total_weight)  * 1000;
 
-    return $weight;
+    // Переводим в граммы $defaultWeight
+    // $defaultWeight = $defaultWeight * 1000; //300
+
+    if ( $total_weight < $defaultWeight ) {
+        $res_weight = $defaultWeight;
+    } else {
+        $res_weight = $total_weight;
+    }
+
+    $res_weight =$res_weight * 1000;
+    return $res_weight;    
+}  
+
+/**
+ * Расчет высоты Y
+ */
+function boxdev_calculation_heights( $order ){
+
+    $boxdev_local_point = new WC_Boxdev_Shipping_Method();   
+    // Первоначальный вес
+    $defaultHeight = floatval($boxdev_local_point->boxdev_default_height);
     
-}
+    // Инициализация
+    $total_height = 0;
+
+    foreach ( $order->get_items() as $item ) {
+        $product_id = $item->get_product_id();
+        $product = wc_get_product( $product_id );
+        $height_one_product = floatval( $product->get_height() ); // высота одного товара мм        
+       
+        $quantity = $item->get_quantity();  // Количество товара
+
+       $total_height_one_product = $height_one_product * $quantity; 
+       $total_height += $total_height_one_product; // мм   
+       
+        
+     } 
+        // переводим в см и округляем в большую сторону
+
+        $total_height = ceil($total_height / 10);
+
+     // Добавляем запас в 1 см
+    $height = (floatval($total_height) + $defaultHeight);
+
+    return $height;
+    
+} 
+
+/**
+ * Расчет ширины Х
+ */
+function boxdev_calculation_widths( $order ){
+
+    $boxdev_local_point = new WC_Boxdev_Shipping_Method();   
+    // Первоначальный вес
+    $defaultWidth = floatval($boxdev_local_point->boxdev_default_width);
+    
+    // Инициализация
+    $total_width = 0;
+
+    foreach ( $order->get_items() as $item ) {
+        $product_id = $item->get_product_id();
+        $product = wc_get_product( $product_id );
+        $width_one_product = floatval( $product->get_width() ); // ширина одного товара мм        
+       
+        
+       $total_width += $width_one_product; // мм     
+       
+        
+     } 
+
+        // переводим в см и округляем в большую сторону
+
+        $total_width = ceil($total_width / 10);
+
+     // Добавляем запас в 1 см
+    $width = (floatval($total_width) + $defaultWidth);
+
+    return $width;
+    
+} 
+
+/**
+ * Расчет длины Z
+ */
+function boxdev_calculation_lengths( $order ){
+
+    $boxdev_local_point = new WC_Boxdev_Shipping_Method();   
+    // Первоначальный вес
+    $defaultLength = floatval($boxdev_local_point->boxdev_default_length);
+    
+    // Инициализация
+    $total_length = 0;
+
+    foreach ( $order->get_items() as $item ) {
+        $product_id = $item->get_product_id();
+        $product = wc_get_product( $product_id );
+        $length_one_product = floatval( $product->get_length() ); // длина одного товара мм        
+       
+        
+       $total_length += $length_one_product; // мм     
+       
+        
+     } 
+
+        // переводим в см и округляем в большую сторону
+
+        $total_length = ceil( $total_length / 10);
+
+     // Добавляем запас в 1 см
+    $length = (floatval($total_length) + $defaultLength);
+
+    return $length;
+    
+} 
 ?>

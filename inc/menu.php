@@ -30,7 +30,8 @@ if ( is_admin() ) {
   function register_boxdev_menu_admin() {
   ?>
     <div class="wrap woocommerce">                  
-        <?php boxdev_pull_data();?>
+        <?php boxdev_pull_data();?>          
+        
     </div>
   <?php
   }
