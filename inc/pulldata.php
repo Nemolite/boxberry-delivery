@@ -3,7 +3,6 @@
  * Модуль получения данных
  * 
  */
-
 function boxdev_pull_data() { 
     $token = boxdev_get_key(); 
     $url = 'http://api.boxberry.ru/json.php?token='.$token.'&method=OrdersBalance';

@@ -5,11 +5,7 @@
  */
 
 add_action('woocommerce_admin_order_totals_after_total','boxdev_admin_order_totals_after_tax', 1);
-function boxdev_admin_order_totals_after_tax( $order_id ){ 
-    
-    $order = wc_get_order( $order_id ); 
-
-   //show( $order );
+function boxdev_admin_order_totals_after_tax( $order_id ){    
     
     /**
      * Вывод кнопки отправления
@@ -51,8 +47,6 @@ function boxdev_action_order_id(){
    /**
     * Отправление данных
     */
- 
-
     $ch = curl_init();
     curl_setopt($ch, CURLOPT_URL, $apiurl);
     curl_setopt($ch, CURLOPT_POST, true);
@@ -98,18 +92,13 @@ function boxdev_prepare_sdata( $order, $order_id ){
    // Инициализация      
    $SDATA=array();
    
-
   // $SDATA['order_id'] = $order_id;     // Номер заказа в интернет-магазине  
-
   // При оплате заказа на сайте сумму к оплате с получаетля не выставлять
-
   
   $order_total = "0";
   if (($order->get_status() == 'processing')&&($order->get_payment_method() == "nal") ) {
     $order_total = $order->get_total();
   } 
-
-  
 
    $SDATA['order_id'] = $order_id;     // Номер заказа в интернет-магазине  
    $SDATA['payment_sum']=$order_total; // Сумма к оплате с получателя
@@ -121,9 +110,7 @@ function boxdev_prepare_sdata( $order, $order_id ){
    
    $SDATA['shop']=array( 
        'name'=> get_post_meta( $order_id, '_boxdev_code_pvz', true ), // Код пункта выдачи   
-       'name1'=> $boxberry_from, // Код пункта приема  
-
-       
+       'name1'=> $boxberry_from, // Код пункта приема         
    );
 
    $fio = $order->get_billing_last_name()." ".$order->get_billing_first_name()." ".get_post_meta( $order_id, '_billing_new_fild11', true );
@@ -203,11 +190,7 @@ function boxdev_calculation_weights( $order ){
        
         
      } 
-     // Переводим в граммы
-    //$weight = floatval($total_weight)  * 1000;
-
-    // Переводим в граммы $defaultWeight
-    // $defaultWeight = $defaultWeight * 1000; //300
+     // Переводим в граммы 
 
     if ( $total_weight < $defaultWeight ) {
         $res_weight = $defaultWeight;
@@ -270,10 +253,8 @@ function boxdev_calculation_widths( $order ){
         $product_id = $item->get_product_id();
         $product = wc_get_product( $product_id );
         $width_one_product = floatval( $product->get_width() ); // ширина одного товара мм        
-       
-        
-       $total_width += $width_one_product; // мм     
-       
+     
+        $total_width += $width_one_product; // мм           
         
      } 
 
@@ -304,10 +285,8 @@ function boxdev_calculation_lengths( $order ){
         $product_id = $item->get_product_id();
         $product = wc_get_product( $product_id );
         $length_one_product = floatval( $product->get_length() ); // длина одного товара мм        
-       
-        
-       $total_length += $length_one_product; // мм     
-       
+             
+        $total_length += $length_one_product; // мм            
         
      } 
 
